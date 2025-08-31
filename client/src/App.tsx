@@ -9,8 +9,12 @@ interface User {
   isMarried: boolean;
 }
 
-interface GetUsersData {
+interface GetUsersResponse {
   getUsers: User[];
+}
+
+interface GetUserByIdResponse {
+  getUserById: User | null; // Allow null in case user not found
 }
 
 const GET_USERS = gql`
@@ -24,21 +28,54 @@ const GET_USERS = gql`
   }
 `;
 
+const GET_USERS_BY_ID = gql`
+  query getUsersById($id: ID!) {
+    getUserById(id: $id) {
+      id
+      age
+      name
+      isMarried
+    }
+  }
+`;
+
 function App() {
-  const { data, error, loading } = useQuery<GetUsersData>(GET_USERS);
+  const {
+    data: getUsersData,
+    error: getUsersError,
+    loading: getUsersLoading,
+  } = useQuery<GetUsersResponse>(GET_USERS);
 
-  if (loading) return <p>Data loading ...</p>;
+  const {
+    data: getUsersByIdData,
+    error: getUsersByIdError,
+    loading: getUsersByIdLoading,
+  } = useQuery<GetUserByIdResponse>(GET_USERS_BY_ID, {
+    variables: { id: "2" },
+  });
 
-  if (error) return <p>Error: {error.message}</p>;
+  if (getUsersLoading) return <p>Data loading ...</p>;
 
-  if (!data || !data.getUsers) return <p>No data available</p>;
+  if (getUsersError) return <p>Error: {error.message}</p>;
+
+  if (!getUsersData || !getUsersData.getUsers) return <p>No data available</p>;
 
   return (
     <>
-      <h1>Users</h1>
+      <div>
+        {getUsersByIdLoading ? (
+          <p>Loading ...</p>
+        ) : (
+          <>
+            <h2>Chosen User</h2>
+            {getUsersByIdData?.getUserById?.name}
+          </>
+        )}
+      </div>
 
       <div>
-        {data.getUsers.map((user: any) => (
+        <h2>Users</h2>
+        {getUsersData.getUsers.map((user: any) => (
           <div key={user.id}>
             <p>Name: {user.name}</p>
 
