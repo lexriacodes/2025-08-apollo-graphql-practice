@@ -1,5 +1,3 @@
-Of course. Here is a summary perfect for a repository's `README.md` file:
-
 ### Project Summary
 
 A full-stack CRUD application built with **React** and **Apollo Client** on the frontend, and **Apollo Server** with **GraphQL** on the backend.
